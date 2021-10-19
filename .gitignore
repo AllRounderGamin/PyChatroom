@@ -1,0 +1,9 @@
+.idea/
+*.pyc
+.venv/
+.Venv/
+venv/
+Venv/
+.venv
+.vscode/
+Server/Library/Notes

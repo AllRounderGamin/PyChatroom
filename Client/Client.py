@@ -34,7 +34,7 @@ def handler(conn, encryption):
         print(("\b" * (len(userNick) + 2) + "\b" * len(mes)) + mes + "\n" + userNick + ": ", end="")
 
 
-def Download_File(fileName):
+def Download_File(fileName, encryption):
     path = Path("PyChatroom_Downloads/" + fileName)
     counter = 1
     while path.exists():
@@ -46,23 +46,26 @@ def Download_File(fileName):
     sleep(0.5)
     try:
         sc.settimeout(10)
+        file = b""
         line = sc.recv(1024)
         while line:
-            f.write(line)
+            file += line
             line = sc.recv(1024)
-    finally:
+        f.write(encryption.decryptFile(file))
         print("File downloaded at location " + str(path))
+    finally:
         sc.close()
         f.close()
 
 
-def Upload_File(fileName):
+def Upload_File(fileName, encryption):
     sc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sc.connect(fAddress)
     f = open(fileName, "rb")
     try:
         line = f.read(1024)
         while line:
+            line = encryption.encryptFile(line)
             sc.sendall(line)
             line = f.read(1024)
     finally:
@@ -131,6 +134,6 @@ while True:
         socket_object.shutdown(socket.SHUT_RDWR)
         break
     elif user_Message[:4] == "/dwn":
-        Download_File(user_Message[5:].strip())
+        Download_File(user_Message[5:].strip(), encryption)
     elif user_Message[:4] == "/upl":
-        Upload_File(user_Message.split(" ")[1].strip())
+        Upload_File(user_Message.split(" ")[1].strip(), encryption)

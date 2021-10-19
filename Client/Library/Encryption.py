@@ -83,13 +83,12 @@ class RSA:
         p = generate_Prime()
         q = generate_Prime()
         n = p * q
-        nTot = find_LCM(p-1, q-1)
+        nTot = find_LCM(p - 1, q - 1)
         e = generate_E(nTot)
         d = MMI(e, nTot)
         self.public = (n, e)
         self.private = (n, d)
         self.serverPublic = None
-        # client calculates keys, send over, sever calculates keys, sends over
 
     def encrypt(self, asc):
         return pow(asc, self.serverPublic[1], self.serverPublic[0])
@@ -117,3 +116,18 @@ class RSA:
         for char in mes:
             plainText += chr(self.decrypt(int(char)))
         return arrayToString(plainText.split("29"))
+
+    def encryptFile(self, line):
+        cipherText = ""
+        for byte in line:
+            cipherText += str(self.encrypt(byte))
+            cipherText += " "
+        cipherText = cipherText.strip()
+        return cipherText.encode()
+
+    def decryptFile(self, line):
+        plainText = ""
+        line = line.decode().split(" ")
+        for byte in line:
+            plainText += chr(self.decrypt(int(byte)))
+        return arrayToString(plainText.split("29")).encode()

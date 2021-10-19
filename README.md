@@ -24,8 +24,7 @@ A simple text based chat client and server program.
 
 <h3> Main Planned Updates</h3>
 
-1. Add Encryption for file upload and download
-2. Implement a basic GUI.
+1. Implement a basic GUI.
 
 <h5> Minor Planned Updates </h5>
 

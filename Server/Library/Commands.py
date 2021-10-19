@@ -60,7 +60,7 @@ def Help(client=None, Client_List=None, **__):
     Add_Whisper(message=message, addr=client.addr, Client_List=Client_List)
 
 
-def Save_File(message=None, client=None, Client_List=None, file_socket_object=None, File_List=None, **__):
+def Save_File(message=None, client=None, Client_List=None, file_socket_object=None, File_List=None, encObjects=None, **__):
     fileName, recipient = message.split(" ")[1], message.split(" ")[2]
     for user in Client_List:
         if user.ID == recipient:
@@ -71,13 +71,19 @@ def Save_File(message=None, client=None, Client_List=None, file_socket_object=No
                 path = Path("File_Downloads/" + str(counter) + fileName)
                 counter += 1
             file = open(path, "xb")
-
             try:
                 fConn.settimeout(10)
+                tempFile = b""
                 line = fConn.recv(1024)
                 while line:
-                    file.write(line)
+                    tempFile += line
                     line = fConn.recv(1024)
+                encryption = encObjects.get(client)
+                tempFile = encryption.decryptFile(tempFile)
+
+                encryption = encObjects.get(user)
+                file.write(encryption.encryptFile(tempFile))
+
                 Add_Whisper(message="[FILE SERVER ALERT] File uploaded to server under name: " + path.name,
                             addr=client.addr, Client_List=Client_List)
                 print(" File: " + fileName + " was uploaded to server by " + client.ID)
@@ -91,7 +97,8 @@ def Save_File(message=None, client=None, Client_List=None, file_socket_object=No
             fConn.close()
             return True
     else:
-        client.conn.sendto("[SERVER ALERT] No user found with given name".encode(), client.addr)
+        Add_Whisper(message="[SERVER ALERT] No user found with given name".encode(), addr=client.addr,
+                    Client_List=Client_List)
         return
 
 
